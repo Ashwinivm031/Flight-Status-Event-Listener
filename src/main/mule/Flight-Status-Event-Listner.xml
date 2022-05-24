@@ -50,12 +50,7 @@ read(payload,"application/json")
 ]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<module-aip-logging:log-entry
-			doc:name="Log Event Information"
-			doc:id="a388ee15-c4ba-4d7a-9585-230af7d88a64"
-			config-ref="Aip_logging_Config"/>
 		<flow-ref doc:name="Call: Flight Status" doc:id="8670ecf7-78f6-437c-b3e3-577dfe84ff71" name="flightStatusFlow"/>
-		<module-aip-logging:log-entry doc:name="Log Success" doc:id="e80a9622-6124-4e8b-a390-be99d23a428e" config-ref="Aip_logging_Config" messageFormat="XML" tracePoint="AFTER_REQUEST"/>
 			</when>
 			<otherwise >
 				<module-aip-logging:log-entry doc:name="Event status feature is disabled" doc:id="ce618490-84ed-4550-b9fb-27ff70d569d2" config-ref="Aip_logging_Config" priority="WARN" message='#["Flight status events are not being consumed by 15below as the feature is disabled"]'/>
@@ -64,7 +59,8 @@ read(payload,"application/json")
 		<error-handler ref="globalErrorHandler" />
 	</flow>
 	<sub-flow name="flightStatusFlow" doc:id="2e345e4d-4788-48e3-ad1b-fcd6047196f2">	
-			<ee:transform doc:name="Build Request for Flight-Status Api" doc:id="d74bcaf3-8a14-47ba-af8c-f5524b7356a0">
+			<module-aip-logging:log-entry doc:name="Log Event Information" doc:id="a388ee15-c4ba-4d7a-9585-230af7d88a64" config-ref="Aip_logging_Config" />
+		<ee:transform doc:name="Build Request for Flight-Status Api" doc:id="d74bcaf3-8a14-47ba-af8c-f5524b7356a0">
 			<ee:message>
 				<ee:set-payload><![CDATA[%dw 2.0
 output application/xml
@@ -98,7 +94,7 @@ fun getFlightTravelInfo(airport, dateTime)=do {
                 {
                     fif#ChangeDetail:  
                     {
-                        fif#ChangeEvent: "INVALID-EVENT",
+                        fif#ChangeEvent: (flightStatusEvent filter($.JMSEventType == vars.JMSEventType))[0].FlightStatusEvent,
                         fif#ChangedFlightLeg: payload.impactedLeg,
                         fif#NewValue: null
                     },
@@ -130,13 +126,7 @@ fun getFlightTravelInfo(airport, dateTime)=do {
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<until-successful maxRetries="${http.request.maxRetries}"
-				doc:name="Until Successful"
-				doc:id="f493fee8-ed6e-41e2-9341-2028a90b54e1" millisBetweenRetries="${http.request.millisBetweenRetries}">
-				<try doc:name="Try"
-					doc:id="7f88a154-49f5-4754-98aa-5952babe2289">
-				
-				<http:request method="POST" doc:name="Flight Status Service" doc:id="641040c1-888d-45f2-9f82-5401499fe143" config-ref="HTTP_15Below_Request_configuration" path="${http.fifteenBelow.flight-status.path}" sendCorrelationId="AUTO">
+		<http:request method="POST" doc:name="Flight Status Service" doc:id="641040c1-888d-45f2-9f82-5401499fe143" config-ref="HTTP_15Below_Request_configuration" path="${http.fifteenBelow.flight-status.path}" sendCorrelationId="AUTO">
 			<http:headers><![CDATA[#[output application/java
 ---
 {
@@ -144,30 +134,6 @@ fun getFlightTravelInfo(airport, dateTime)=do {
 	"Content-Type" : "text/xml"
 }]]]></http:headers>
 		</http:request>
-					<error-handler>
-						<on-error-continue enableNotifications="true"
-							logException="true"
-							doc:name="On Error Continue for Connectivity Faliures"
-							doc:id="29b9a8e8-517a-48e4-93f9-e3f1fe2829eb"
-							when='#[error.errorType.identifier != "CONNECTIVITY" and error.errorType.identifier != "TIMEOUT"]'>
-							<ee:transform doc:name="Create Error Variable"
-								doc:id="33cc7514-1489-443f-b2e7-3c808184241c">
-								<ee:message />
-								<ee:variables>
-								<ee:set-variable variableName="flight_status_error_object" ><![CDATA[%dw 2.0
-output application/java
----
-error]]></ee:set-variable>
-								</ee:variables>
-							</ee:transform>
-						</on-error-continue>
-					</error-handler>
-				</try>
-			</until-successful>
-		<validation:is-true
-				doc:id="8849d8ec-080c-45b6-8c19-224ce636e43a"
-				expression="#[vars.flight_status_error_object == null]"
-				message='#[vars.flight_status_error_object.detailedDescription]'
-				doc:name="Check for errors other than connectivity errors" />
+		<module-aip-logging:log-entry doc:name="Log Success" doc:id="e80a9622-6124-4e8b-a390-be99d23a428e" config-ref="Aip_logging_Config" messageFormat="XML" tracePoint="AFTER_REQUEST" />
 	</sub-flow>
 	</mule>
