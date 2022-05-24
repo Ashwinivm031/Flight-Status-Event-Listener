@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:sockets="http://www.mulesoft.org/schema/mule/sockets"
+	xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:vm="http://www.mulesoft.org/schema/mule/vm"
+	xmlns:outlook365="http://www.mulesoft.org/schema/mule/outlook365"
+xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+	xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
+	xmlns:jms="http://www.mulesoft.org/schema/mule/jms" xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:module-aip-logging="http://www.mulesoft.org/schema/mule/module-aip-logging" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd 
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd 
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd 
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd 
+http://www.mulesoft.org/schema/mule/module-aip-logging http://www.mulesoft.org/schema/mule/module-aip-logging/current/mule-module-aip-logging.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
+http://www.mulesoft.org/schema/mule/outlook365 http://www.mulesoft.org/schema/mule/outlook365/current/mule-outlook365.xsd
+http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/sockets http://www.mulesoft.org/schema/mule/sockets/current/mule-sockets.xsd">
+		<jms:config name="JMS_Config" doc:name="JMS Config" doc:id="2193c77a-f41d-4dda-b6f9-a02cdeaf6779" >
+		<jms:active-mq-connection username="${secure::activemq.user}" password="${secure::activemq.password}">
+			<reconnection >
+				<reconnect-forever frequency="${activemq.reconnection.frequency}"/>
+			</reconnection>
+			<jms:factory-configuration brokerUrl="${activemq.broker-url}" initialRedeliveryDelay="${activemq.redelivery.initial-delay}" redeliveryDelay="${activemq.redelivery.delay}" maxRedelivery="${activemq.redelivery.max-attempts}" />
+		</jms:active-mq-connection>
+		<jms:consumer-config maxRedelivery="${activemq.redelivery.max-attempts}" />
+		<jms:producer-config persistentDelivery="true" />
+	</jms:config>	
+	<configuration-properties doc:name="Configuration properties" doc:id="aad7b41f-0b08-43cb-a5b0-f6dff2acf861" file="properties/${env}.yaml" />
+    <http:listener-config name="comms-exp-api-httpListenerConfig">
+        <http:listener-connection host="0.0.0.0" port="${http.port}" />
+    </http:listener-config>
+	<http:request-config name="HTTP_Request_getPnr_configuration" doc:name="HTTP Request configuration" doc:id="6afec406-cc82-4307-b88e-64b09f2fad2f" >
+		<http:request-connection host="${http.pnrRequester.host}" port="${http.pnrRequester.port}" connectionIdleTimeout="${http.request.timeoutInMillis}" />
+	</http:request-config>
+	<http:request-config name="HTTP_Request_getFlightManifest_configuration" doc:name="HTTP Request configuration" doc:id="032aef64-2f31-4e2c-aeff-1ff7c440d56b" >
+		<http:request-connection host="${http.flightManifestRequester.host}" port="${http.flightManifestRequester.port}" connectionIdleTimeout="${http.request.timeoutInMillis}" />
+	</http:request-config>
+	<http:request-config name="HTTP_Request_postPnrRemarks_configuration" doc:name="HTTP Request configuration" doc:id="3dc0d0d4-690c-425d-8302-8c99474ad31c" sendCorrelationId="ALWAYS">
+		<http:request-connection host="${http.pnrRemarksRequester.host}" port="${http.pnrRemarksRequester.port}" connectionIdleTimeout="${http.request.timeoutInMillis}"/>
+	</http:request-config>
+	<http:request-config name="HTTP_15Below_Request_configuration" doc:name="HTTP Request configuration" doc:id="2bb2cbf1-715f-43ec-91d1-c6a622058988">
+		<http:request-connection protocol="HTTPS" host="${http.fifteenBelow.flight-status.host}" connectionIdleTimeout="${http.request.timeoutInMillis}"/>
+	</http:request-config>
+	<http:request-config name="HTTPS_Post_Staff_CSV_Request_configuration" doc:name="HTTP Request configuration" doc:id="c1256362-166a-4467-a8d1-f27e7581ce29" >
+		<http:request-connection protocol="HTTPS" host="${http.staffContactsCSVRequester.host}" connectionIdleTimeout="${http.request.timeoutInMillis}" port="443">
+			<tls:context >
+				<tls:trust-store path="./cacerts" password="changeit" />
+			</tls:context>
+		</http:request-connection>
+	</http:request-config>
+	<module-aip-logging:config name="Aip_logging_Config" doc:name="Aip-logging Config" doc:id="b8a802a2-86b7-4b00-a352-53fb37d91926" app="Flight-Status-Event-Listener" appVersion="1.0.0" />
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="783a2812-cbad-4de0-86c2-d4e9f4fd22d9" file="properties/${env}-secure.yaml" key="${key}">
+		<secure-properties:encrypt algorithm="Blowfish" />
+	</secure-properties:config>
+		<sftp:config name="SFTP_Config" doc:name="SFTP Config" doc:id="8b8102d8-19fe-4a3b-9633-7aeb36705f16" >
+		<sftp:connection host="${sftp.host}" username="${secure::sftp.username}" password="${secure::sftp.password}" port="${sftp.port}"/>
+	</sftp:config>
+	<sockets:tcp-client-socket-properties name="TCP_client_socket_properties" doc:name="Tcp client socket properties" doc:id="f7b4b223-7c85-43ae-87e3-8d0f12c43c18" keepAlive="true" connectionTimeout="${http.request.timeoutInMillis}"/>
+	<error-handler name="globalErrorHandler" doc:id="fa568a68-c830-4c50-82f7-4a8152217048">
+		<on-error-propagate type="HTTP:UNAUTHORIZED">
+			<ee:transform doc:name="Set Error Response" doc:id="17e9e222-7d1b-45e9-9c13-c749f8e49808">
+				<ee:message />
+				<ee:variables>
+					<ee:set-variable variableName="errorResponse"><![CDATA[%dw 2.0
+output application/java
+---
+{
+	httpStatus: 401,
+	errorCode: "ApplicationError",
+	errorMessage: "Unauthorized"
+}]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<flow-ref doc:name="Call to set error payload"
+				doc:id="558f6037-78ed-4332-bb15-90eaaba5d70b"
+				name="common-error-handling-utilitySub_Flow" />
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true"
+			logException="true" doc:name="On Error Propagate"
+			doc:id="7fdda008-6b6a-4ca2-967f-6b0a46ad8d83"
+			type="HTTP:INTERNAL_SERVER_ERROR, HTTP:CONNECTIVITY">
+			<ee:transform doc:name="Set Error Response" doc:id="5fc0044d-38eb-4212-a475-68e33fe61049">
+				<ee:message />
+				<ee:variables>
+					<ee:set-variable variableName="errorResponse"><![CDATA[%dw 2.0
+output application/java
+---
+{
+	httpStatus: 500,
+	errorCode: "SystemError",
+	errorMessage: "Internal Server Error"
+}]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<flow-ref doc:name="Call to set error payload" doc:id="b9aebef7-824b-430e-882f-560a36ef18f7" name="common-error-handling-utilitySub_Flow" />
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="7480dec3-5977-4519-8a2e-7929daba58c3" >
+			<ee:transform doc:name="Set Error Response" doc:id="753d4a1c-f620-4fd2-bac3-a82924531ea1">
+				<ee:message />
+				<ee:variables>
+					<ee:set-variable variableName="errorResponse"><![CDATA[%dw 2.0
+output application/java
+---
+{
+	httpStatus: 500,
+	errorCode: "ApplicationError",
+	errorMessage: "Internal Server Error"
+}]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<flow-ref doc:name="Call to set error payload" doc:id="47a855ff-8da0-4fd0-bb64-2f303b7bb036" name="common-error-handling-utilitySub_Flow"/>
+		</on-error-propagate>
+	</error-handler>
+	<sub-flow name="common-error-handling-utilitySub_Flow"
+		doc:id="e7be75e8-0354-4b88-8afe-39971845d3c1">
+		<set-variable value="#[vars.errorResponse.httpStatus]" doc:name="Set the HTTP Status" doc:id="f07c7a0f-6d30-4b86-a88c-2c76a4c16876" variableName="httpStatus" />
+		<ee:transform doc:name="Set Error Payload"
+			doc:id="373120bb-cee5-40d4-ac89-e42e92ef1e20">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	responseStatus:
+	{
+		code: vars.errorResponse.errorCode default "SystemError",
+		message: if ( !isEmpty(error.detailedDescription) ) vars.errorResponse.errorMessage default "" ++ ' - ' ++ (error.detailedDescription default "") else vars.errorResponse.errorMessage default ""
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<module-aip-logging:log-error doc:name="Log error" doc:id="0b5b6f5b-7107-434e-917b-bdbb5625e3fa" config-ref="Aip_logging_Config"/>
+	</sub-flow>
+</mule>

@@ -1,0 +1,18 @@
+datasource:
+  cmsdb:
+    username: "![869Qo64gqKyZ3kvgc0sXFA==]"  
+    password: "![AFeSDzTpQPNxZ3K6EMu4Ow==]"
+activemq:
+  user: "![2hqIELoDC3PIj7z9bwPObQ==]"
+  password: "![LRbnWw8/Z+2710qSuQiovQ==]"
+sftp:
+  username: "Q0bV00XdnTzVlCZZybDQDw=="
+  password: "FRdXVo3LAytsRBXPiG1+n8BeF3dM3IhM"
+aip-common-diag:
+  tlsTrustStorePassword: "![phIiQoZONtzsZYLXyMEfBQ==]"
+outlook365:
+  client-id: "![nBnKF5kdBA5rH7264gKom6Kce2RhZXsKKcCFTKrqQ1dLTht3ne8lXQ==]"
+  client-secret: "![DwAs6eTPEvoukrQLvB9KHUQ8Kam2PqrwUODrkJpM1eS4gJGu/yhO04jvlDr5d8av]"
+  token-url: "![tpO3StE0MAQXEsEOTGgHPXJ+XdoUKk+CKLSElPxEk791mH4Rbv0xNxpl0CwDIvaloRW/6V3k5whL5P/zJu6VFX0cH0EvbIg3TczzeNpuTHghXifFdAsUCO6hQ8vfcCLF]"
+  scopes: "![tpO3StE0MAT9lCkYwb4zmZrSq3ri1ttUMLT+VXUtKQaCil8nvfx0QA==]"
+  user: "![pYBBOOE2+Nv/NCDXtyDVhnG7TPEg2Hb1gyawfcIMAvTo3g72n+cnmQ==]"

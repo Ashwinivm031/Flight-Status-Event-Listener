@@ -1,0 +1,19 @@
+datasource:
+  cmsdb:
+    username: "![Ex/MGsJ/hHMK3oJle0+F9Q==]"   
+    password: "![5bPABFueRxh4O2Ixi9SjsA==]"   
+activemq:
+  user: "![PLClfUStTLcXJFR+XU0GAQ==]"         
+  password: "![BMZjXoplllA9VFdYRgM71A==]"     
+sftp:
+  username: "![/B7mKa2r8mnK2nQJPbamhg==]"
+  password: "![7XP8HVjA4jx++VzN41/c09Ox4to8UJv5]"
+aip-common-diag:
+  tlsTrustStorePassword: "![r4XyoLMSMAYJDZ6rndOx3w==]"
+outlook365:
+  # need to change to prod config, using test config here for now
+  client-id: "![+dMj/KoXtssv3G6sITneXd8DPYwn+ocIC6r6A7i3xZM4A2DaDhwwWQ==]"
+  client-secret: "![LbQRJbZ0CXHLkL7N77QeGS1LEvsi5SYpAgCNvYxQp+5FXRBksIGwtLTB8ZZAF8kY]"
+  token-url: "![xeM8BGEpI0PuAXGG5ludStbhi8sBaNNc8ylggQxS5q0zfSa6EDO3rA+ken/RFzPTeZIquD4r/A/NTuFVPukdasyRjXjzAQzezB0PnHjRCTjq7+0vstnnC5PhDtFm8vuf]"
+  scopes: "![xeM8BGEpI0NY0RsB0MGatJ5D42napO0rcqooCjV2I7KTOksKj0ldEg==]"
+  user: "![Swbp9hVNE+WceB9+ADT3dNA4W/cN77svyxsGgSwvlLuaS52GR+8ABA==]"

@@ -1,0 +1,90 @@
+http:  
+  host: "0.0.0.0"
+  port: "8081"
+  listener:
+    getStaffContacts: "/api/staff-contacts"
+  request:
+    timeoutInMillis: "30000"
+    maxRetries: "5"
+    millisBetweenRetries: "10000"
+  pnrRequester:
+    host: "jbshc1.stg.allegiantair.com"
+    port: "10780"
+    path: "/g4-checkinboard/v1/api/travelers"     
+  flightManifestRequester:
+    host: "jbshc1.stg.allegiantair.com"
+    port: "9980"
+    path: "/g4-flight-summary/v1/api/flights/manifest/detail"
+  pnrRemarksRequester:
+    host: "jbshc1.stg.allegiantair.com"
+    port: "10780"
+    path: "/g4-flight-order/v1/api/orders/history"
+  staffContactsCSVRequester:
+    host: "dlb.stg.allegiantair.com"
+    path: "staff-contacts/contacts/departments/downloadcsv"
+  fifteenBelow:
+    flight-status:
+      host: "g4-uat-flightstatus-api.pasngr.com"
+      path: "/v2_0_0/FlightStatus.svc"
+      soapAction: "http://schemas.15below.com/flightTrigger.criteria/IFlightStatus/NewFlightTrigger"
+
+activemq:
+  broker-url: "failover:(tcp://jbossamq11.stg.allegiantair.com:61616,tcp://jbossamq12.stg.allegiantair.com:61616)?randomize=false&initialReconnectDelay=10000&jms.rmIdFromConnectionId=true&maxReconnectAttempts=0" 
+  reconnection:
+    frequency: "10000"
+  redelivery:
+    max-attempts: "3"
+    initial-delay: "5000"
+    delay: "5000"
+  destination:
+    numberOfConsumers: "4"
+    flight-status-event-topic: "Consumer.15Below.VirtualTopic.events.airline.flops.flight-status"
+  flight-status-event:
+    enable: "true"
+    JMSType:
+      CancelledEvent: "FlightStatusCanceledEvent"
+      DelayedEvent: "FlightStatusDelayEvent"
+    
+sftp:
+  # need to change uat host
+  host: "G4-UAT-UP.PASNGR.COM"
+  port: "22"
+  maxRetries: "5"
+  millisBetweenRetries: "1000"
+  staff-csv:
+    path: "/StaffFileProcessor/"
+    enable: "true"
+    scheduler:
+      cron-strategy: "0 0 9 * 3 ?"
+  ssim-upload:
+    path: "/SSIMFileProcessor/"
+    enable: "false"
+    
+outlook365:
+  since: "2022-05-11T17:40:00Z"
+  maxRetries: "5"
+  millisBetweenRetries: "1000"
+  redelivery:
+    max-redelivery-count: "5"
+  reconnection:
+    frequency: "10000"
+  scheduler:
+    frequency: "60000"
+    #once a minute
+    cron-strategy: "0 * * ? * *"
+  queue:
+    name: "outlook-queue"
+    timeout: "5"
+    consumers-count: "1"
+    max-redelivery-count: "5"
+
+datasource:
+  cmsdb:
+    driverClassName: "com.ibm.db2.jcc.DB2Driver"
+    jdbc-url: "jdbc:db2://db2.stg.allegiantair.com:50001/CMSDB" 
+    maxRetries: "5"
+    millisBetweenRetries: "1000"
+
+aip-common-diag:
+  useCustomTlsStore: "false"
+  tlsTrustStorePath: "./cacerts"
