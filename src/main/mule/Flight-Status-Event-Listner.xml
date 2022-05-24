@@ -98,7 +98,7 @@ fun getFlightTravelInfo(airport, dateTime)=do {
                 {
                     fif#ChangeDetail:  
                     {
-                        fif#ChangeEvent: (flightStatusEvent filter($.JMSEventType == vars.JMSEventType))[0].FlightStatusEvent,
+                        fif#ChangeEvent: "INVALID-EVENT",
                         fif#ChangedFlightLeg: payload.impactedLeg,
                         fif#NewValue: null
                     },

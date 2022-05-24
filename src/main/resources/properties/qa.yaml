@@ -33,7 +33,7 @@ activemq:
   reconnection:
     frequency: "10000"
   redelivery:
-    max-attempts: "1"
+    max-attempts: "3"
     initial-delay: "5000"
     delay: "5000"
   destination:
