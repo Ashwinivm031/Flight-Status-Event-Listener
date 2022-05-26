@@ -26,9 +26,8 @@ http://www.mulesoft.org/schema/mule/sockets http://www.mulesoft.org/schema/mule/
 			<reconnection >
 				<reconnect-forever frequency="${activemq.reconnection.frequency}"/>
 			</reconnection>
-			<jms:factory-configuration brokerUrl="${activemq.broker-url}" initialRedeliveryDelay="${activemq.redelivery.initial-delay}" redeliveryDelay="${activemq.redelivery.delay}" maxRedelivery="${activemq.redelivery.max-attempts}" />
+			<jms:factory-configuration brokerUrl="${activemq.broker-url}"/>
 		</jms:active-mq-connection>
-		<jms:consumer-config maxRedelivery="${activemq.redelivery.max-attempts}" />
 		<jms:producer-config persistentDelivery="true" />
 	</jms:config>	
 	<configuration-properties doc:name="Configuration properties" doc:id="aad7b41f-0b08-43cb-a5b0-f6dff2acf861" file="properties/${env}.yaml" />
